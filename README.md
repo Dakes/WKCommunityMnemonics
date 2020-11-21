@@ -2,10 +2,10 @@
 This script allows WaniKani members to contribute their own mnemonics which appear on any page that includes item info.
 
 It was created by Samuel Harbord, but has not received any updates by him since 2015-03-12.  
-So I decided that I will take on the challenge to bring this into a usable state once again. 
+So I decided that I will take on the challenge to bring this into a usable state once again.  
+
 I guess this is his GitHub profile: https://github.com/Flashfyre  
 And here the original on GreasyFork: https://greasyfork.org/en/scripts/7954-wk-community-mnemonics  
-
 Original Community Post: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367
 ## TODO
 First 4 points shamelessly copied of irrelephant from the WaniKani Community:  https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367/128  

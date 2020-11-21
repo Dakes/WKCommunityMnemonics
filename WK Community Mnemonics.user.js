@@ -11,42 +11,69 @@
 // @include     *.wanikani.com/vocabulary*
 // @include     *.wanikani.com/review/session
 // @include     *.wanikani.com/lesson/session
-// @version     0.9.7.8
-// @author      Samuel H
+// @version     0.9.7.9
+// @author      Samuel H edited by Daniel Ostertag (Dakes)
 // @grant       none
 
 /* This script is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license
 *  Details: http://creativecommons.org/licenses/by-nc/4.0/ */
 
-CMVersion = "0.9.7.8";
+let CMVersion = "0.9.7.9";
 
-CMIsReview = (window.location.pathname.indexOf("/review/") > -1);
-CMIsLesson = (window.location.pathname.indexOf("/lesson/") > -1);
-CMIsList = (!CMIsReview && !CMIsLesson && (new RegExp("level/[0-9]{1,2}$", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2)) ||
-           new RegExp("[kanji|vocabulary].[difficulty=[A-Z]$|$]", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2))));
-CMIsChrome = (navigator.userAgent.toLowerCase().indexOf('chrome') > -1);
+// if current page is Review page
+let CMIsReview = (window.location.pathname.indexOf("/review/") > -1);
+// if current page is Lesson page
+let CMIsLesson = (window.location.pathname.indexOf("/lesson/") > -1);
+let CMIsList = (!CMIsReview && !CMIsLesson &&
+    (
+        // TODO: generalize regex, only matches 2 digit levels (in case they add more levels ... much more)
+        // true if on a level page
+        new RegExp("level\/[0-9]{1,2}$", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2)) ||
+        // true if on a /kanji?difficulty=pleasant site CHECK: but why? The plugin has nothing to do there. Why not kanji/上 ?
+        new RegExp("[kanji|vocabulary].[difficulty=[A-Z]$|$]", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2))
+    ));
+// check if running on chrome
+let CMIsChrome = (navigator.userAgent.toLowerCase().indexOf('chrome') > -1);
+
+// Moved username variable up here and simplified initialization. Also throw error, if username cannot be set instead of using *anything*
+let CMUserClass = "user-summary__username";
+let CMUser;
+if(CMIsList)
+    CMUser = document.getElementsByClassName(CMUserClass)[0].innerHTML;
+else if(CMIsReview || CMIsLesson)
+    CMUser = window.WaniKani.username;
+else
+    throw new Error("CM Warning: CMUser not set. ");
 
 if (CMIsReview || CMIsLesson) {
     $(document).ready(function() {
-        var checkContentLoaded = setInterval(function() {
-            										if ((CMIsReview && $("#character span").html() !== "") || ($("#character").html() !== "" && $("#character").html() !== "&nbsp;")) {
-            											clearInterval(checkContentLoaded);
-                                                        checkCMNewestVersion(0)
-        											}
-                                                 }, 1000);
+        // setInterval executes function ever 1000 ms, recursive call, CHECK: probably waits until content is loaded to check for newest version
+        var checkContentLoaded = setInterval(
+            function()
+            {
+                if ((CMIsReview && $("#character span").html() !== "") || ($("#character").html() !== "" && $("#character").html() !== "&nbsp;"))
+                {
+                    clearInterval(checkContentLoaded);
+                    checkCMNewestVersion(0);
+                }
+            },
+            1000);
     });
-} else {
-
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", function() { checkCMNewestVersion(0); });
-	} else {
-		checkCMNewestVersion(0);
-	}
-	document.addEventListener("DOMContentLoaded", function() { checkCMNewestVersion(0); });
+}
+else
+{
+    if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", function() { checkCMNewestVersion(0); });
+    else
+        checkCMNewestVersion(0);
 }
 
-var public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
+let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
 
+/**
+ * Check current Version against greasyfork version and open greasyfork, if update is available
+ * @param failCount if > 3 cannot update alert
+ */
 function checkCMNewestVersion(failCount) {
 
     $.ajax({
@@ -60,8 +87,8 @@ function checkCMNewestVersion(failCount) {
                 CMVersionCheck.v = latestVersion;
             }
 
-            if (CMVersionCheck.c === false) {
-
+            if (CMVersionCheck.c === false)
+            {
                 versionChanges = data.slice(data.indexOf("- ", data.indexOf("</time>")) + 2, data.indexOf("</li>", data.indexOf("</time>"))).trim().replace("&#39;", "'");
 
                 if (latestVersion !== CMVersion && confirm('It looks like you aren\'t using the latest version of WaniKani Community Mnemonics (v' + latestVersion + ').\n\n' +
@@ -74,6 +101,7 @@ function checkCMNewestVersion(failCount) {
 
             localStorage.setItem("CMVersionCheck", JSON.stringify(CMVersionCheck));
 
+            // only init call
             init();
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -84,35 +112,43 @@ function checkCMNewestVersion(failCount) {
     });
 }
 
-function init() {
-
-    if (!CMIsList) {
-
-        if (CMIsReview) {
+function init()
+{
+    if (!CMIsList)
+    {
+        if (CMIsReview)
+        {
             initCMReview(false);
-        } else if (CMIsLesson) {
+        } else if (CMIsLesson)
+        {
             initCMLesson(false);
-        } else {
+        } else
+        {
             $('<h2>Community Meaning Mnemonic</h2><section id="cm-meaning" class="cm"><p class="loadingCM">Loading...</p></section>').insertAfter($("#note-meaning"));
             $('<h2>Community Reading Mnemonic</h2><section id="cm-reading" class="cm"><p class="loadingCM">Loading...</p></section>').insertAfter($("#note-reading"));
         }
 
-    } else {
+    } else
+    {
         $(".additional-info.level-list.legend li").parent().prepend(getCMLegend(true)).prepend(getCMLegend(false));
         $(".legend.level-list span.commnem").css("background-color", "#71aa00").parent().parent().parent().children("li").css("width", 188).parent().children("li:first-child, li:nth-child(6)")
-        	.css("width", 187);
+            .css("width", 187);
         $(".legend.level-list span.commnem-req").css("background-color", "#e1aa00");
     }
 
     //Start Code Credit: jsoma from Github
-    try {
-        Tabletop.init( { key: public_spreadsheet_url,
-                        callback: showInfo,
-                        simpleSheet: true } );
-    } catch(e) {
+    try
+    {
+        Tabletop.init({
+            key: public_spreadsheet_url,
+            callback: showInfo,
+            simpleSheet: true
+        });
+    } catch (e)
+    {
         if (!CMIsReview && !CMIsLesson) $(".loadingCM").html("An error occurred while trying to access the database; reload the page to try again.");
         else alert('The following error occurred while trying to access the database: "' + e + '". If the problem persists, make sure your internet connection is working properly.');
-   	}
+    }
     //End Code Credit
 }
 
@@ -884,10 +920,14 @@ function CMSettingsCheck() {
                                       "r": {"p": CMData[CMType][CMChar].r.u[curSortMap.m[0]],
                                             "c": ($.inArray( CMUser, CMData[CMType][CMChar].r.u[curSortMap.r[0]] + 1))}};
     } else {
-        if (($.inArray( CMSettings[CMType][CMChar].m.p, CMData[CMType][CMChar].m.u[CMSortMap.m[0]] )) < 0) CMSettings[CMType][CMChar].m.p = CMData[CMType][CMChar].m.u[CMSortMap.m[0]];
-        if (($.inArray( CMSettings[CMType][CMChar].r.p, CMData[CMType][CMChar].r.u[CMSortMap.r[0]] )) < 0) CMSettings[CMType][CMChar].r.p = CMData[CMType][CMChar].r.u[CMSortMap.r[0]];
-        if (($.inArray( CMUser, CMData[CMType][CMChar].m.u[CMSortMap.m[0]] ) > -1) !== CMSettings[CMType][CMChar].m.c) CMSettings[CMType][CMChar].m.c = !CMSettings[CMType][CMChar].m.c;
-        if (($.inArray( CMUser, CMData[CMType][CMChar].r.u[CMSortMap.r[0]] ) > -1) !== CMSettings[CMType][CMChar].r.c) CMSettings[CMType][CMChar].r.c = !CMSettings[CMType][CMChar].r.c;
+        if (($.inArray( CMSettings[CMType][CMChar].m.p, CMData[CMType][CMChar].m.u[CMSortMap.m[0]] )) < 0)
+            CMSettings[CMType][CMChar].m.p = CMData[CMType][CMChar].m.u[CMSortMap.m[0]];
+        if (($.inArray( CMSettings[CMType][CMChar].r.p, CMData[CMType][CMChar].r.u[CMSortMap.r[0]] )) < 0)
+            CMSettings[CMType][CMChar].r.p = CMData[CMType][CMChar].r.u[CMSortMap.r[0]];
+        if (($.inArray( CMUser, CMData[CMType][CMChar].m.u[CMSortMap.m[0]] ) > -1) !== CMSettings[CMType][CMChar].m.c)
+            CMSettings[CMType][CMChar].m.c = !CMSettings[CMType][CMChar].m.c;
+        if (($.inArray( CMUser, CMData[CMType][CMChar].r.u[CMSortMap.r[0]] ) > -1) !== CMSettings[CMType][CMChar].r.c)
+            CMSettings[CMType][CMChar].r.c = !CMSettings[CMType][CMChar].r.c;
     }
 }
 
@@ -915,7 +955,7 @@ function loadCM(fromForm, meaning) {
                                  '-moz-background-clip: text; -moz-text-fill-color: transparent; -moz-text-stroke: 2px black }' +
                                  '.cm-next { position: absolute; pointer-events: none; padding-left: 10px }' +
                                  '.cm-next span { pointer-events: all }' +
-                                 '.cm-mnem-text { margin: 0 190px 0 60px' + ((CMIsReview || CMIsLesson) ? "; padding: 0" : "" ) + '}' +
+                                 '.cm-mnem-text { position: absolute; margin: 0 190px 0 60px' + ((CMIsReview || CMIsLesson) ? "; padding: 0" : "" ) + '}' +
                                  '.cm-info { display: inline-block }' +
                                  '.cm-info, .cm-info div { margin-bottom: 0px !important }' +
                                  '.cm-score { float: left; width: 80px }' +
@@ -944,11 +984,7 @@ function loadCM(fromForm, meaning) {
                                  'background-image: linear-gradient(to bottom, #fff, #e6e6e6); background-repeat: repeat-x; width: 10px; height: 10px; margin: 0 !important; ' +
                                  'padding: ' + ((CMIsReview || CMIsLesson) ? "7px 13px 13px 7px" : "8px 12px 12px 8px") + '; line-height: 1; float: left }' +
                                  '.cm-format-bold, .cm-format-underline, .cm-format-strike { padding-left: 10px; padding-right: 10px }' +
-								 '.cm-text::selection { background-color: DeepSkyBlue; color: black; } ' +
-								 '.cm-format-kan, .cm-format-kan:hover { background-color: #f100a1; color: white; background-image: linear-gradient(to bottom, #f0a, #dd0093);} ' +
-                                 '.cm-format-voc, .cm-format-voc:hover { ' + ((CMIsReview || CMIsLesson) ? "" : "float: none;") + ' background-color: #a100f1; color: white; background-image: linear-gradient(to bottom, #a0f, #9300dd); }' +
-								 '.cm-format-reading, .cm-format-reading:hover { background-color: #474747; color: white; background-image: linear-gradient(to bottom, #555, #333); }' +
-								 '.cm-format-rad, .cm-format-rad:hover { background-color: #00a1f1; color: white; background-image: linear-gradient(to bottom, #0af, #0093dd); }' +
+                                 '.cm-format-voc { ' + ((CMIsReview || CMIsLesson) ? "" : "float: none") + ' }' +
                                  '.cm-format-btn.active { background-color:#e6e6e6; background-color:#d9d9d9; background-image:none; outline:0; ' +
                                  '-webkit-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05); ' +
                                  'box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05) }' +
@@ -1596,29 +1632,30 @@ var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
     t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|
     (c2&63)<<6|c3&63);n+=3}}return t}};
 
-CMTableData = [];
-CMTableItems = [];
-CMData = {"k": [], "v": []};
-CMSettings = {"k": [], "v": []};
-CMVotes = {"k": [], "v": []};
-CMPageIndex = {"m": 0, "r": 0};
-CMSortMap = {"m": [], "r": []};
-CMPageMap = {"m": [], "r": []};
-CMLastTag = {"m": "", "r": ""};
-CMInitData = true;
-CMInitSettings = true;
-CMInitVotes = true;
-CMStylesAdded = false;
-CMReady = false;
-CMPostReady = true;
-CMPreloadReady = false;
-CMIndex = -1;
-CMSelTemp = -1;
-CMChar = "";
-CMType = "";
-CMUser = (CMIsReview || CMIsLesson) ? $("#report-errors a").attr("href") : $('.account .nav-header').next().children()[1].href;
-CMUser = (CMIsReview || CMIsLesson) ? CMUser.slice(CMUser.indexOf("from%20") + 7, CMUser.indexOf("%20%28")) : CMUser.substring(CMUser.lastIndexOf("/") + 1);
-CMVersionCheck = {"v": CMVersion, "c": false };
+let CMTableData = [];
+let CMTableItems = [];
+let CMData = {"k": [], "v": []};
+let CMSettings = {"k": [], "v": []};
+let CMVotes = {"k": [], "v": []};
+let CMPageIndex = {"m": 0, "r": 0};
+let CMSortMap = {"m": [], "r": []};
+let CMPageMap = {"m": [], "r": []};
+let CMLastTag = {"m": "", "r": ""};
+let CMInitData = true;
+let CMInitSettings = true;
+let CMInitVotes = true;
+let CMStylesAdded = false;
+let CMReady = false;
+let CMPostReady = true;
+let CMPreloadReady = false;
+let CMIndex = -1;
+let CMSelTemp = -1;
+let CMChar = "";
+let CMType = "";
+// let CMUser = (CMIsReview || CMIsLesson) ? $("#report-errors a").attr("href") : $('.account .nav-header').next().children()[1].href;
+// CMUser = (CMIsReview || CMIsLesson) ? CMUser.slice(CMUser.indexOf("from%20") + 7, CMUser.indexOf("%20%28")) : CMUser.substring(CMUser.lastIndexOf("/") + 1);
+
+let CMVersionCheck = {"v": CMVersion, "c": false };
 
 if (localStorage.getItem("CMVersionCheck") !== null) {
     CMVersionCheck = JSON.parse(localStorage.getItem("CMVersionCheck"));
