@@ -7,6 +7,13 @@ So I decided that I will take on the challenge to bring this into a usable state
 I guess this is his GitHub profile: https://github.com/Flashfyre  
 And here the original on GreasyFork: https://greasyfork.org/en/scripts/7954-wk-community-mnemonics  
 Original Community Post: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367
+
+## Latest Changelog
+### 0.9.7.9: 
+- Applied fixes by TellowKrinkle from the WaniKani community: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367/139
+- Fixed the infamous "c" user bug
+
+
 ## TODO
 First 4 points shamelessly copied of irrelephant from the WaniKani Community:  https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367/128  
 
