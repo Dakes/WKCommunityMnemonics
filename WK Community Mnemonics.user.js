@@ -14,6 +14,7 @@
 // @version     0.9.7.9
 // @author      Samuel H edited by Daniel Ostertag (Dakes)
 // @grant       none
+// https://github.com/Dakes/WKCommunityMnemonics
 
 /* This script is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license
 *  Details: http://creativecommons.org/licenses/by-nc/4.0/ */
@@ -70,6 +71,10 @@ else
 
 let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
 
+// Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
+let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
+let script_raw_url = "https://github.com/Dakes/WKCommunityMnemonics/raw/main/WK%20Community%20Mnemonics.user.js";
+
 /**
  * Check current Version against greasyfork version and open greasyfork, if update is available
  * @param failCount if > 3 cannot update alert
@@ -77,7 +82,7 @@ let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&h
 function checkCMNewestVersion(failCount) {
 
     $.ajax({
-        url: "https://greasyfork.org/en/scripts/7954-wk-community-mnemonics/versions.html",
+        url: greasyfork_url,
         success: function(data, textStatus, jqXHR) {
             var latestVersion = data.slice(data.indexOf('">v') + 3, data.indexOf("</a>", data.indexOf('">v') + 3));
             var versionChanges = "";
@@ -94,7 +99,7 @@ function checkCMNewestVersion(failCount) {
                 if (latestVersion !== CMVersion && confirm('It looks like you aren\'t using the latest version of WaniKani Community Mnemonics (v' + latestVersion + ').\n\n' +
                                                            'This update contains the following change(s): \n"' + versionChanges + '"\n\nWhile it is not mandatory, it is highly recommended that you update.' +
                                                            'Will you update from v' + CMVersion + ' to v' + latestVersion + '?'))
-                    window.open('https://greasyfork.org/scripts/7954-wk-community-mnemonics/code/WK%20Community%20Mnemonics.user.js', '_self');
+                    window.open(script_raw_url, '_self');
                 else CMVersionCheck.c = true;
 
             }
@@ -1699,3 +1704,4 @@ if (localStorage.getItem("CMVotes") !== null) {
     CMInitVotes = false;
 }
 // ==/UserScript==
+
