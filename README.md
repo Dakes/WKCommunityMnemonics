@@ -26,3 +26,4 @@ so that people would be motivated to contribute and so that we can thank them fo
 - Look for "Database" alternative for Google spreadsheets.   
 - Let people claim ownership of Mnemonics by user "c" (caused by bug) (Hopefully there is no one actually called c, lol)
 - Split everything into multiple easier understandable smaller files. 
+- Replace Tabletop by something a little less deprecated

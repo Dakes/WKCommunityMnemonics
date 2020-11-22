@@ -46,6 +46,14 @@ else if(CMIsReview || CMIsLesson)
 else
     throw new Error("CM Warning: CMUser not set. ");
 
+
+let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
+
+// Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
+let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
+let script_raw_url = "https://github.com/Dakes/WKCommunityMnemonics/raw/main/WK%20Community%20Mnemonics.user.js";
+
+
 if (CMIsReview || CMIsLesson) {
     $(document).ready(function() {
         // setInterval executes function ever 1000 ms, recursive call, CHECK: probably waits until content is loaded to check for newest version
@@ -68,12 +76,6 @@ else
     else
         checkCMNewestVersion(0);
 }
-
-let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
-
-// Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
-let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
-let script_raw_url = "https://github.com/Dakes/WKCommunityMnemonics/raw/main/WK%20Community%20Mnemonics.user.js";
 
 /**
  * Check current Version against greasyfork version and open greasyfork, if update is available
