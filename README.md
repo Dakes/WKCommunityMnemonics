@@ -25,3 +25,4 @@ I would probably just do that again before showing the data (in case someone had
 so that people would be motivated to contribute and so that we can thank them for putting in the effort.
 - Look for "Database" alternative for Google spreadsheets.   
 - Let people claim ownership of Mnemonics by user "c" (caused by bug) (Hopefully there is no one actually called c, lol)
+- Split everything into multiple easier understandable smaller files. 
