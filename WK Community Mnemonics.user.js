@@ -11,7 +11,7 @@
 // @include     *.wanikani.com/vocabulary*
 // @include     *.wanikani.com/review/session
 // @include     *.wanikani.com/lesson/session
-// @version     0.9.7.9
+// @version     0.9.8
 // @author      Samuel H edited by Daniel Ostertag (Dakes)
 // @grant       none
 // https://github.com/Dakes/WKCommunityMnemonics
@@ -19,7 +19,7 @@
 /* This script is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license
 *  Details: http://creativecommons.org/licenses/by-nc/4.0/ */
 
-let CMVersion = "0.9.7.9";
+let CMVersion = "0.9.8";
 
 // if current page is Review page
 let CMIsReview = (window.location.pathname.indexOf("/review/") > -1);
@@ -35,6 +35,12 @@ let CMIsList = (!CMIsReview && !CMIsLesson &&
     ));
 // check if running on chrome
 let CMIsChrome = (navigator.userAgent.toLowerCase().indexOf('chrome') > -1);
+
+// Greasyfork doesn't allow @require imports. These are here as a workaround. Uncomment on Greasyfork and remove @require
+/*
+$("head").prepend('<script src="https://rawgit.com/jsoma/tabletop/master/src/tabletop.js" type="text/javascript"></script>' +
+                  '<script src="https://rawgit.com/jackmoore/autosize/v1/jquery.autosize.js" type="text/javascript"></script>');
+*/
 
 // Moved username variable up here and simplified initialization. Also throw error, if username cannot be set instead of using *anything*
 let CMUserClass = "user-summary__username";

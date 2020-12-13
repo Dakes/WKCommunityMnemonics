@@ -9,6 +9,9 @@ And here the original on GreasyFork: https://greasyfork.org/en/scripts/7954-wk-c
 Original Community Post: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367
 
 ## Latest Changelog
+### 0.9.8:
+- Now works on every site, it was originally meant to work on: + the item site outside the review. 
+
 ### 0.9.7.9: 
 - Applied fixes by TellowKrinkle from the WaniKani community: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367/139
 - Fixed the infamous "c" user bug
@@ -27,3 +30,6 @@ so that people would be motivated to contribute and so that we can thank them fo
 - Let people claim ownership of Mnemonics by user "c" (caused by bug) (Hopefully there is no one actually called c, lol)
 - Split everything into multiple easier understandable smaller files. 
 - Replace Tabletop by something a little less deprecated
+
+## Buglist
+- Left and right button overlap in lesson CRM
