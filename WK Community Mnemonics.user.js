@@ -11,7 +11,7 @@
 // @include     *.wanikani.com/vocabulary*
 // @include     *.wanikani.com/review/session
 // @include     *.wanikani.com/lesson/session
-// @version     0.9.7.9
+// @version     0.9.8
 // @author      Samuel H edited by Daniel Ostertag (Dakes)
 // @grant       none
 // https://github.com/Dakes/WKCommunityMnemonics
@@ -19,7 +19,7 @@
 /* This script is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license
 *  Details: http://creativecommons.org/licenses/by-nc/4.0/ */
 
-let CMVersion = "0.9.7.9";
+let CMVersion = "0.9.8";
 
 // if current page is Review page
 let CMIsReview = (window.location.pathname.indexOf("/review/") > -1);
@@ -30,24 +30,44 @@ let CMIsList = (!CMIsReview && !CMIsLesson &&
         // TODO: generalize regex, only matches 2 digit levels (in case they add more levels ... much more)
         // true if on a level page
         new RegExp("level\/[0-9]{1,2}$", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2)) ||
-        // true if on a /kanji?difficulty=pleasant site CHECK: but why? The plugin has nothing to do there. Why not kanji/上 ?
+        // true if on a /kanji?difficulty=pleasant site
         new RegExp("[kanji|vocabulary].[difficulty=[A-Z]$|$]", "i").test(window.location.pathname.slice(window.location.pathname.indexOf("com/") + 2))
     ));
 // check if running on chrome
 let CMIsChrome = (navigator.userAgent.toLowerCase().indexOf('chrome') > -1);
 
+// Greasyfork doesn't allow @require imports. These are here as a workaround. Uncomment on Greasyfork and remove @require
+/*
+$("head").prepend('<script src="https://rawgit.com/jsoma/tabletop/master/src/tabletop.js" type="text/javascript"></script>' +
+                  '<script src="https://rawgit.com/jackmoore/autosize/v1/jquery.autosize.js" type="text/javascript"></script>');
+*/
+
 // Moved username variable up here and simplified initialization. Also throw error, if username cannot be set instead of using *anything*
 let CMUserClass = "user-summary__username";
 let CMUser;
-if(CMIsList)
-    CMUser = document.getElementsByClassName(CMUserClass)[0].innerHTML;
-else if(CMIsReview || CMIsLesson)
+
+if(CMIsReview || CMIsLesson)
     CMUser = window.WaniKani.username;
 else
-    throw new Error("CM Warning: CMUser not set. ");
+    try
+    {
+        CMUser = document.getElementsByClassName(CMUserClass)[0].innerHTML;
+    }
+    catch(err)
+    {
+        throw new Error("CM Warning: CMUser not set. \n" + err);
+    }
 
-if (CMIsReview || CMIsLesson) {
-    $(document).ready(function() {
+let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
+
+// Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
+let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
+let script_raw_url = "https://github.com/Dakes/WKCommunityMnemonics/raw/main/WK%20Community%20Mnemonics.user.js";
+
+if (CMIsReview || CMIsLesson)
+{
+    $(document).ready(function()
+    {
         // setInterval executes function ever 1000 ms, recursive call, CHECK: probably waits until content is loaded to check for newest version
         var checkContentLoaded = setInterval(
             function()
@@ -68,12 +88,6 @@ else
     else
         checkCMNewestVersion(0);
 }
-
-let public_spreadsheet_url = 'https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=1sXSNlOITCaNbXa4bUQSfk_5Uvja6qL3Wva8bPv-3B2o&output=html';
-
-// Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
-let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
-let script_raw_url = "https://github.com/Dakes/WKCommunityMnemonics/raw/main/WK%20Community%20Mnemonics.user.js";
 
 /**
  * Check current Version against greasyfork version and open greasyfork, if update is available
@@ -215,8 +229,10 @@ function getCMBadge(isRecent, isReq) {
     return $('<span lang="ja" ' + ((isRecent) ? ' style="top: ' + ((CMType == "k") ? '2.25em" ' : '1em" ') : '') + 'class="item-badge commnem-badge' + ((isReq) ? "-req" : "") + '"></span>');
 }
 
-function initCMReview(isLessonQuiz) {
-    if (isLessonQuiz) {
+function initCMReview(isLessonQuiz)
+{
+    if (isLessonQuiz)
+    {
         CMIsReview = true;
 
         $("#cm-meaning, #cm-reading").prev().remove();
@@ -226,11 +242,15 @@ function initCMReview(isLessonQuiz) {
         $("#supplement-nav li:last-child").off("click", clickLastLessonTab);
         $("#batch-items li:not(.active)").off("click", clickCMLessonItem);
 
-        var checkFirstItemLoaded = setInterval(function() {
-            if ((!isLessonQuiz && $("#character span").html() !== "" && $("#character span").html() !== undefined) || (isLessonQuiz && $("#character").html() !== "" && $("#character").html() !== undefined))
+        var checkFirstItemLoaded = setInterval(
+            function()
+            {
+            if ((!isLessonQuiz && $("#character span").html() !== "" && $("#character span").html() !== undefined) ||
+                (isLessonQuiz && $("#character").html() !== "" && $("#character").html() !== undefined))
                 clearInterval(checkFirstItemLoaded);
                 newCMReviewItem();
-        }, 300);
+            },
+            300);
     }
 
     $("#user-response").next().on("click", clickCMReviewSubmit);
