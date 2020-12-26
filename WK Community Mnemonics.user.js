@@ -523,7 +523,14 @@ function clickLastLessonTab() {
     }
 }
 
+/**
+ * Gets called with tabletop Google spreadsheet data, only at first init call.
+ * @param data Spreadsheet data
+ * @param tabletop
+ */
 function showInfo(data, tabletop) {
+
+    // TODO: sanitize data from Spreadsheet completely from any HTML tags, maybe here. Replace old tags by new Markup Syntax
 
     var curItem = "";
     var curType = "";
@@ -572,11 +579,14 @@ function showInfo(data, tabletop) {
         }
     }
 
-    if (CMInitSettings || CMInitVotes) CMInitData = true;
+    if (CMInitSettings || CMInitVotes)
+        CMInitData = true;
 
     if (!CMInitData && !newItem && data.length > (Object.keys(CMData.k).length + Object.keys(CMData.v).length)) {
         var lastItem = data[Object.keys(CMData.k).length + Object.keys(CMData.v).length - 1].Item;
-        if (lastItem == "k" + Object.keys(CMData.k)[Object.keys(CMData.k).length - 1] || lastItem == "v" + Object.keys(CMData.v)[Object.keys(CMData.v).length - 1]) addItems = Object.keys(CMData.k).length + Object.keys(CMData.v).length;
+        if (lastItem == "k" + Object.keys(CMData.k)[Object.keys(CMData.k).length - 1] ||
+            lastItem == "v" + Object.keys(CMData.v)[Object.keys(CMData.v).length - 1])
+            addItems = Object.keys(CMData.k).length + Object.keys(CMData.v).length;
         else {
             CMInitData = true;
             CMData = {"k": [], "v": []};
@@ -677,14 +687,17 @@ function showInfo(data, tabletop) {
 function updateCMText(isMeaning) {
     var isMeaningStr = ((isMeaning) ? "m" : "r");
 
-    $("#cm-" + ((isMeaning) ? "meaning" : "reading") + " .cm-mnem-text").html(CMData[CMType][CMChar][isMeaningStr].t[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] +
-                        '<br />by <a href="https://www.wanikani.com/community/people/' + CMData[CMType][CMChar][isMeaningStr].u[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] + '" target="_blank">' +
-                        CMData[CMType][CMChar][isMeaningStr].u[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] + '</a>');
+    $("#cm-" + ((isMeaning) ? "meaning" : "reading") + " .cm-mnem-text").html(
+        CMData[CMType][CMChar][isMeaningStr].t[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] +
+        CMData[CMType][CMChar][isMeaningStr].u[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] + '</a>'
+    );
 
     checkCMTextHighlight(isMeaning);
 
-    if (CMData[CMType][CMChar][isMeaningStr].u[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] == CMUser) $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-user-buttons div").removeClass("disabled");
-    else $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-user-buttons div").addClass("disabled");
+    if (CMData[CMType][CMChar][isMeaningStr].u[CMSortMap[isMeaningStr][CMPageIndex[isMeaningStr]]] === CMUser)
+        $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-user-buttons div").removeClass("disabled");
+    else
+        $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-user-buttons div").addClass("disabled");
 
     updateCMMargins(isMeaning, !isMeaning);
 
@@ -715,11 +728,17 @@ function updateCMMargins(meaning, reading) {
 function checkCMTextHighlight(isMeaning) {
     if (!CMIsReview && !CMIsLesson) {
         $("#cm-" + ((isMeaning) ? "meaning" : "reading") + " .cm-mnem-text").children("[class]").each(function() {
-            if ($(this).attr("class").slice($(this).attr("class").indexOf("-") + 1) !== "highlight") $(this).attr("class", $(this).attr("class").slice($(this).attr("class").indexOf("-") + 1) + "-highlight");
+            if ($(this).attr("class").slice($(this).attr("class").indexOf("-") + 1) !== "highlight")
+                $(this).attr("class", $(this).attr("class").slice($(this).attr("class").indexOf("-") + 1) + "-highlight");
         });
     }
 }
 
+/**
+ * checks if all opening tags have closing counterparts
+ * @param text
+ * @returns {boolean}
+ */
 function checkCMHTMLTags(text) {
 
     var isValid = true;
@@ -874,23 +893,43 @@ function getCMPageMap(MUsers, RUsers) {
     return pageMap;
 }
 
-function getCMContent(item, itemType, mnemType) {
-    var CMItem = null;
-    var CMMnemType = (mnemType == "m") ? "meaning" : "reading";
-    var CMContent = '<p';
-    var CMLen = CMData[itemType][item][mnemType].t.length;
-    var CMPage = CMPageIndex[mnemType];
-    if (CMData[itemType][item][mnemType].t[0].length > 0 && CMData[itemType][item][mnemType].t[0] !== "!") {
+/**
+ * Creates the whole Mnemonic Div element
+ * @param item Kanji or vocabulary itself "百"
+ * @param itemType if Kanji or vocabulary "k" or "v"
+ * @param mnemType if meaning or reading "m" or "r"
+ * @returns {string} Mnemonic div tag
+ */
+function getCMContent(item, itemType, mnemType)
+{
+    let CMItem = null;
+    let CMMnemType = (mnemType === "m") ? "meaning" : "reading";
+    let CMContent = '<p';
+    let CMLen = CMData[itemType][item][mnemType].t.length;
+    let CMPage = CMPageIndex[mnemType];
+
+    // check if Mnemonic available
+    if (CMData[itemType][item][mnemType].t[0].length > 0 && CMData[itemType][item][mnemType].t[0] !== "!")
+    {
         CMItem = CMData[itemType][item][mnemType];
-        CMContent = '<div id="cm-' + CMMnemType + '-prev" class="cm-prev'   + ((CMLen > 1 && CMPage > 0) ? "" : " disabled") + '"><span>◄</span></div>' + CMContent +  ' class="cm-mnem-text">' + CMItem.t[CMSortMap[mnemType][CMPage]] +
+        CMContent =
+            // left arrow
+            '<div id="cm-' + CMMnemType + '-prev" class="cm-prev' + ((CMLen > 1 && CMPage > 0) ? "" : " disabled") + '"><span>◄</span></div>' +
+            // p tag with actual Mnemonic text
+            CMContent + ' class="cm-mnem-text">' + CMItem.t[CMSortMap[mnemType][CMPage]] +
+            // Link to user
             '<br />by <a href="https://www.wanikani.com/community/people/' + CMItem.u[CMSortMap[mnemType][CMPage]] + '" target="_blank" >' +
-            CMItem.u[CMSortMap[mnemType][CMPage]] + '</a></p><div id="cm-' + CMMnemType + '-next" class="cm-next' + ((CMLen > 1 && CMPage < CMLen - 1) ? "" : " disabled") + '"><span>►</span></div>' +
+            CMItem.u[CMSortMap[mnemType][CMPage]] + '</a></p>' +
+            // right arrow
+            '<div id="cm-' + CMMnemType + '-next" class="cm-next' + ((CMLen > 1 && CMPage < CMLen - 1) ? "" : " disabled") + '"><span>►</span></div>' +
+            // Voting and submit buttons
             '<div id="cm-' + CMMnemType + '-info" class="cm-info"><div class="cm-score">Score: <span id="cm-' + CMMnemType +
             '-score-num" class="cm-score-num' + ((CMItem.s[CMSortMap[mnemType][CMPage]] !== 0) ? ((CMItem.s[CMSortMap[mnemType][CMPage]] > 0) ? " pos" : " neg") : "") + '">' +
             CMItem.s[CMSortMap[mnemType][CMPage]] + '</span></div><div class="cm-upvote-highlight">Upvote</div><div class="cm-downvote-highlight">Downvote</div>' +
             '<div id="cm-' + CMMnemType + '-user-buttons" class="cm-user-buttons"><div class="cm-edit-highlight' + ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Edit</div><div class="cm-delete-highlight' +
             ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Delete</div></div><br /><div id="cm-' + CMMnemType + '-submit" class="cm-submit-highlight">Submit Yours</div></div>';
-    } else {
+    } else
+    {
         CMContent += '>Nobody has posted a mnemonic for this item\'s ' + CMMnemType + ' yet. If you like, you can be the first to submit one!</p><div id="cm-' + CMMnemType + '-info" class="cm-info cm-nomnem">' +
             '<div id="cm-' + CMMnemType + '-submit" class="cm-submit-highlight nomnem">Submit Yours</div><div id="cm-' + CMMnemType + '-req" class="cm-req-highlight">' +
             (($.inArray(CMUser, CMData[itemType][item][mnemType].u) < 0) ? "Make Request" : "Delete Request") + '</div>';
@@ -956,21 +995,26 @@ function CMSettingsCheck() {
     }
 }
 
-function loadCM(fromForm, meaning) {
-
+/**
+ *
+ * @param fromForm boolean
+ * @param meaning boolean
+ */
+function loadCM(fromForm, meaning)
+{
     var failCount = 0;
 
     var checkCMReady = setInterval(function() {
 
-        if (CMReady) {
-
+        if (CMReady)
+        {
             clearInterval(checkCMReady);
-
             CMPreloadReady = true;
 
-            if (!fromForm) {
-
-                if (!CMStylesAdded) {
+            if (!fromForm)
+            {
+                if (!CMStylesAdded)
+                {
                     $("head").append('<style type="text/css">' +
                                  '.cm-prev, .cm-next, .cm-upvote-highlight, .cm-downvote-highlight, .cm-delete-highlight, .cm-edit-highlight, .cm-submit-highlight, .cm-req-highlight { cursor: pointer !important }' +
                                  '.cm-prev, .cm-next { font-size: 50px; margin: 0px 0px 0px 0px; padding: 15px 10px 0px 0px; float: left' + ((CMIsReview || CMIsLesson) ? "; margin-top: -10px; padding: 0 " : "" ) + '}' +
@@ -1041,6 +1085,8 @@ function loadCM(fromForm, meaning) {
             }
             checkCMTextHighlight(true);
             checkCMTextHighlight(false);
+
+            // button functions
             $(".cm-prev span, .cm-next span").click(function() {
                 if (!$(this).parent().hasClass("disabled")) {
                     if ($(this).parent().parent().attr("id") == "cm-meaning") {
@@ -1177,11 +1223,13 @@ function loadCM(fromForm, meaning) {
                                     var selEnd = $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-text").prop("selectionEnd");
                                     if (selEnd == CMSelTemp && selStart == selEnd) {
                                         selStart -= (selEnd - $(this).val().lastIndexOf("<", selStart));
-                                        if ($(".cm-format-btn.active").length > 0) {
+                                        if ($(".cm-format-btn.active").length > 0)
+                                        {
                                             $(".cm-format-btn").removeClass("active");
                                             CMSelTemp = -1;
-                                        } else if ($(this).val().substr(selStart - 1, 1) == ">") {
-                                            switch($(this).val().slice($(this).val().lastIndexOf("<", selStart - 1) + 1, selStart - 1)) {
+                                        } else if ($(this).val().substr(selStart - 1, 1) == ">")
+                                        {
+                                            switch( $(this).val().slice($(this).val().lastIndexOf("<", selStart - 1) + 1, selStart - 1) ) {
                                                 case "b":
                                                     $(".cm-format-bold").addClass("active");
                                                     break;
@@ -1318,6 +1366,7 @@ function loadCM(fromForm, meaning) {
                             CMLastTag = tagStart;
                         });
 
+                        // Submit Button
                         $(".cm-form-submit").click(function() {
 
                             $(this).prop("disabled", true).prev().prop("disabled", true).parent().prop("disabled", true);
@@ -1326,35 +1375,46 @@ function loadCM(fromForm, meaning) {
 
                             var mnemText = "";
                             if (isEdit || !CMSettings[CMType][CMChar][((isMeaning) ? "m" : "r")].c) {
+                                // get text from textarea
                                 mnemText = $("#cm-" + ((isMeaning) ? "meaning" : "reading") + "-text").val().trim();
                                 if (mnemText.length > 0) {
+                                    // test if contains pipe
                                     if (!/[|]/.test(mnemText)) {
                                         if (!new RegExp(Base64.decode("ZnVja3xzaGl0fGRpY2t8bXkgY29ja3x5b3VyIGNvY2t8cyBjb2NrfHBlbmlzfHJhcGV8cmFwaW5nfHB1c3N5fGN1bnR8Y2xpdHxqaXp6fGN1bXxhbnVzfG5pZ2dlcnxmYWd8d" +
                                                                       "Gl0fHBvcm58bW9sZXN0fHBlZG98aGF2ZSBzZXh8aGFkIHNleA==").toLowerCase(), "i").test(mnemText)) {
-                                            if (checkCMHTMLTags(mnemText)) {
+                                            // look if every opening tag also has a closing tag
+                                            if (checkCMHTMLTags(mnemText))
+                                            {
                                                 var firstChar = (mnemText.substring(0, 1) !== "<") ? mnemText.substring(0, 1) : mnemText.substring(mnemText.indexOf(">") + 1, 1);
-                                                if (firstChar !== "!" ) {
-
+                                                // ! indicates mnemonic request
+                                                if (firstChar !== "!" )
+                                                {
                                                     mnemText = (mnemText.substr(0, 1) !== "<") ? (firstChar.toUpperCase() + mnemText.substring(1)) : (mnemText.slice(0, mnemText.indexOf(">") + 1) +
                                                                 mnemText.substr(mnemText.indexOf(">") + 1, 1).toUpperCase() + mnemText.substring(mnemText.indexOf(">") + 2));
-                                                    if (!/[.|!|?|。|！]$/.test(mnemText.slice(mnemText.length - 1)) && mnemText.length < 500) {
-                                                        if (mnemText.slice(mnemText.length - 1) == ">") mnemText += (!/[.|!|?|。|！]$/.test(mnemText.substr(mnemText.lastIndexOf("<") - 1, 1))) ? "." : "";
-                                                        else mnemText += ".";
+                                                    if (!/[.|!|?|。|！]$/.test(mnemText.slice(mnemText.length - 1)) && mnemText.length < 500)
+                                                    {
+                                                        if (mnemText.slice(mnemText.length - 1) === ">")
+                                                            mnemText += (!/[.|!|?|。|！]$/.test(mnemText.substr(mnemText.lastIndexOf("<") - 1, 1))) ? "." : "";
+                                                        else
+                                                            mnemText += ".";
                                                     }
 
-                                                    if (isEdit) {
-
+                                                    if (isEdit)
+                                                    {
                                                         var index = CMSortMap[((isMeaning) ? "m" : "r")][CMPageIndex[((isMeaning) ? "m" : "r")]];
 
-                                                        if (CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index] !== (mnemText)) {
-                                                            CMVotes[CMType][CMChar][((isMeaning) ? "m" : "r")][CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].u[index] + ":" + mnemText] = CMVotes[CMType][CMChar][((isMeaning) ? "m" : "r")][CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].u[index] + ":" + CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index]];
+                                                        if (CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index] !== (mnemText))
+                                                        {
+                                                            CMVotes[CMType][CMChar][((isMeaning) ? "m" : "r")][CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].u[index] + ":" + mnemText] =
+                                                                CMVotes[CMType][CMChar][((isMeaning) ? "m" : "r")][CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].u[index] + ":" + CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index]];
                                                             delete CMVotes[CMType][CMChar][((isMeaning) ? "m" : "r")][CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].u[index] + ":" + CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index]];
                                                             CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[index] = mnemText;
                                                             postCM(((isMeaning) ? 6 : 7));
-                                                        } else $(this).prev().prop("disabled", false).trigger("click").prop("disabled", true);
+                                                        } else
+                                                            $(this).prev().prop("disabled", false).trigger("click").prop("disabled", true);
 
-                                                    } else {
-
+                                                    } else
+                                                    {
                                                         if (CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[0].length > 0 && CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t[0] !== "!") {
                                                             CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].t.push(mnemText);
                                                             CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].s.push(0);
@@ -1373,8 +1433,8 @@ function loadCM(fromForm, meaning) {
                                                             CMSortMap[((isMeaning) ? "m" : "r")].push(0);
                                                             CMPageIndex[((isMeaning) ? "m" : "r")] = 0;
 
-                                                        } else {
-
+                                                        } else
+                                                        {
                                                             for (var s = CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].s.length - 1; s >= 0; s--) {
                                                                 if (CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].s[s] > -1 || s == 0) {
                                                                     CMSortMap[((isMeaning) ? "m" : "r")] = CMSortMap[((isMeaning) ? "m" : "r")].slice(0, s).concat([CMData[CMType][CMChar][((isMeaning) ? "m" : "r")].s.length - 1].concat(CMSortMap[((isMeaning) ? "m" : "r")].slice(s)));
@@ -1464,7 +1524,8 @@ function loadCM(fromForm, meaning) {
                     postCM(9);
                 }
             });
-        } else {
+        } else
+        {
             failCount++;
             if (failCount == 10) {
                 $(".loadingCM").html('Loading seems to be taking longer than it should and something may have gone wrong. If this issue continues after reloading the page, make sure your ' +
@@ -1512,52 +1573,63 @@ function deleteCM(isMeaning, isUser) {
     postCM(((isMeaning) ? 4 : 5));
 }
 
+/**
+ *
+ * @param postType
+ */
 function postCM(postType) {
 
-    if (postType == 0) CMData[CMType][CMChar].i = CMIndex;
+    if (postType === 0) CMData[CMType][CMChar].i = CMIndex;
 
-    var serializedData = (postType == 0) ? 'Item=' + CMType + encodeURIComponent(CMChar) + "&Meaning_Mnem=&Reading_Mnem=&Meaning_Score=&Reading_Score=&Meaning_User=&Reading_User=&Index=" +
+    /* serializedData looks something like this:
+       Item=k%E6%89%8D&Meaning_Mnem=&Reading_Mnem=&Meaning_Score=&Reading_Score=&Meaning_User=&Reading_User=&Index=1148
+     */
+    var serializedData = (postType === 0) ? 'Item=' + CMType + encodeURIComponent(CMChar) + "&Meaning_Mnem=&Reading_Mnem=&Meaning_Score=&Reading_Score=&Meaning_User=&Reading_User=&Index=" +
         CMData[CMType][CMChar].i : "Item=" + CMType + encodeURIComponent(CMChar) + "&Meaning_Mnem=" + encodeURIComponent(CMData[CMType][CMChar].m.t.join("|")) + "&Reading_Mnem=" +
         encodeURIComponent(CMData[CMType][CMChar].r.t.join("|")) + "&Meaning_Score=" + ((!isNaN(CMData[CMType][CMChar].m.s[0])) ? CMData[CMType][CMChar].m.s.join("|") : "") + "&Reading_Score=" +
         ((!isNaN(CMData[CMType][CMChar].r.s[0])) ? CMData[CMType][CMChar].r.s.join("|") : "") + "&Meaning_User=" + CMData[CMType][CMChar].m.u.join("|") + "&Reading_User=" +
         CMData[CMType][CMChar].r.u.join("|") + "&Index=" + CMData[CMType][CMChar].i;
 
-    if ((postType !== 2 && postType !== 3) || CMSettings[CMType][CMChar][((postType == 2) ? "m" : "r")].c == false) {
+    if ((postType !== 2 && postType !== 3) || CMSettings[CMType][CMChar][((postType === 2) ? "m" : "r")].c === false) {
 
-        if (postType == 2 || postType == 3) CMSettings[CMType][CMChar][((postType == 2) ? "m" : "r")].c = true;
+        if (postType === 2 || postType === 3) CMSettings[CMType][CMChar][((postType === 2) ? "m" : "r")].c = true;
 
+        // saves changes to Database
         $.ajax({
+            // wth is this?
             url: "https://script.google.com/macros/s/AKfycbznhpL43Ix-qqO3sNcJmQeQk5dsdW6u0uaZ9to4_8TQho0qcm0/exec",
             type: "POST",
             data: serializedData,
-            success: function(data, textStatus, jqXHR) {
-                if (postType == 0) {
+            success: function(data, textStatus, jqXHR)
+            {
+                if (postType === 0)
                     CMReady = true;
-                } else {
+                else
+                {
                     if (postType > 1) {
-                        if (postType == 2 || postType == 3) {
-                            CMSettings[CMType][CMChar][((postType == 2) ? "m" : "r")].p = CMUser;
+                        if (postType === 2 || postType === 3) {
+                            CMSettings[CMType][CMChar][((postType === 2) ? "m" : "r")].p = CMUser;
                             saveCMSettings();
-                            loadCM(true, (postType == 2));
+                            loadCM(true, (postType === 2));
                         } else if (postType < 6) {
-                            $("#cm-" + [((postType == 4) ? "meaning" : "reading")] + "-delete-text h3").html("Mnemonic successfully deleted!");
+                            $("#cm-" + [((postType === 4) ? "meaning" : "reading")] + "-delete-text h3").html("Mnemonic successfully deleted!");
 
-                            if ((postType == 4 && CMData[CMType][CMChar].m.t.length > 0) || (postType == 5 && CMData[CMType][CMChar].r.t.length > 0)) {
-                                updateCMText((postType == 4));
+                            if ((postType === 4 && CMData[CMType][CMChar].m.t.length > 0) || (postType === 5 && CMData[CMType][CMChar].r.t.length > 0)) {
+                                updateCMText((postType === 4));
                             } else {
-                                CMData[CMType][CMChar][((postType == 4) ? "m" : "r")] = {"t": [""], "s": [], "u": [""]};
-                                loadCM(true, (postType == 4));
+                                CMData[CMType][CMChar][((postType === 4) ? "m" : "r")] = {"t": [""], "s": [], "u": [""]};
+                                loadCM(true, (postType === 4));
                             }
 
                             saveCMSettings();
 
                             setTimeout(function() {
 
-                                $("#cm-" + ((postType == 4) ? "meaning" : "reading") + "-user-buttons .cm-delete-highlight").html("Delete").css({"font-size": "12px", "line-height": "1"}).removeAttr("disabled");
-                                $("#cm-" + ((postType == 4) ? "meaning" : "reading")).css("opacity", "1").prev().css("opacity", "0");
+                                $("#cm-" + ((postType === 4) ? "meaning" : "reading") + "-user-buttons .cm-delete-highlight").html("Delete").css({"font-size": "12px", "line-height": "1"}).removeAttr("disabled");
+                                $("#cm-" + ((postType === 4) ? "meaning" : "reading")).css("opacity", "1").prev().css("opacity", "0");
 
                                 setTimeout(function() {
-                                    $("#cm-" + ((postType == 4) ? "meaning" : "reading")).css({"-webkit-transition": "none",
+                                    $("#cm-" + ((postType === 4) ? "meaning" : "reading")).css({"-webkit-transition": "none",
                                                                                                "-moz-transition": "none",
                                                                                                "-o-transition": "none",
                                                                                                "transition": "none"}).prev().remove();
@@ -1565,15 +1637,16 @@ function postCM(postType) {
 
                             }, 3000);
                         } else if (postType < 8) {
-                            updateCMText((postType == 6));
-                            loadCM(true, (postType == 6));
+                            updateCMText((postType === 6));
+                            loadCM(true, (postType === 6));
                         }
                     }
 
                     saveCMVotes();
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function(jqXHR, textStatus, errorThrown)
+            {
                 alert("Error submitting data to database.");
             }
         });
@@ -1617,7 +1690,8 @@ function saveCMSettings() {
 function saveCMVotes() {
     localStorage.setItem("CMVotes", JSON.stringify(CMVotes, function (key, value) {
         //Start Code Credit: Mike Samuel from Stack Overflow
-        if (value && typeof value === 'object') {
+        if (value && typeof value === 'object')
+        {
             var replacement = {};
             for (var k in value) {
                 if (Object.hasOwnProperty.call(value, k)) {
@@ -1659,6 +1733,22 @@ var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
 
 let CMTableData = [];
 let CMTableItems = [];
+/**
+ * k: kanji
+ * example:
+ *  々:
+ *      i: 1477
+ *      m:
+ *          s: [2]
+ *          t: ["Some Mnemonic"]
+ *          u: ["c"]
+ *      r:
+ *          s: [NaN]
+ *          t: [""]
+ *          u: [""]
+ * v: vocabulary
+ * @type {{v: [], k: []}}
+ */
 let CMData = {"k": [], "v": []};
 let CMSettings = {"k": [], "v": []};
 let CMVotes = {"k": [], "v": []};

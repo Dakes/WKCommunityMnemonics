@@ -22,14 +22,15 @@ First 4 points shamelessly copied of irrelephant from the WaniKani Community:  h
 
 - Sanitize data to avoid XSS attacks as mentioned by above. There is already some of that logic in place to do this, 
 I would probably just do that again before showing the data (in case someone had modified it directly in the Google doc)  
-- Fix script so that it runs on all types of pages (at least lessons and kanji currently don’t seem to be working)  
 - Optional, later: build a small tool that lets people bulk export their notes so that I can import them to the existing data set.  
 - Also optional: have a small statistic somewhere that lists users and the votes that they received on their mnemonics, 
 so that people would be motivated to contribute and so that we can thank them for putting in the effort.
 - Look for "Database" alternative for Google spreadsheets.   
 - Let people claim ownership of Mnemonics by user "c" (caused by bug) (Hopefully there is no one actually called c, lol)
 - Split everything into multiple easier understandable smaller files. 
+- fix update message (Or remove update Dialog completely)
 - Replace Tabletop by something a little less deprecated
+- fix update message (Or remove update Dialog completely)
 
 ## Buglist
 - Left and right button overlap in lesson CRM
