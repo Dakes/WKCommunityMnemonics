@@ -914,10 +914,11 @@ function getCMContent(item, itemType, mnemType)
         CMItem = CMData[itemType][item][mnemType];
 
         // p tag with actual Mnemonic text
-        let CMUserContent =
-            '<p class="cm-mnem-text">' + CMItem.t[CMSortMap[mnemType][CMPage]] +
+        let CMUserContent = CMItem.t[CMSortMap[mnemType][CMPage]].replace("'", "&#39;").replace("\"", "&#34;").replace("\&", "&amp;");
+        CMUserContent =
+            '<p class="cm-mnem-text">' + CMUserContent +
             // Link to user
-            '<br />by <a href="https://www.wanikani.com/community/people/' + CMItem.u[CMSortMap[mnemType][CMPage]] + '" target="_blank" >' +
+            '<br />by <a href="https://www.wanikani.com/community/people/' + CMItem.u[CMSortMap[mnemType][CMPage]].replace("'", "&#39;").replace("\"", "&#34;") + '" target="_blank" >' +
             CMItem.u[CMSortMap[mnemType][CMPage]] + '</a></p>';
 
         // The CM use "inverted" classes, that get converted later.
