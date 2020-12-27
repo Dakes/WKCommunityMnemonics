@@ -11,7 +11,7 @@
 // @include     *.wanikani.com/vocabulary*
 // @include     *.wanikani.com/review/session
 // @include     *.wanikani.com/lesson/session
-// @version     0.9.8
+// @version     0.9.8.1
 // @author      Samuel H edited by Daniel Ostertag (Dakes)
 // @grant       none
 // https://github.com/Dakes/WKCommunityMnemonics
@@ -530,7 +530,7 @@ function clickLastLessonTab() {
  */
 function showInfo(data, tabletop) {
 
-    // TODO: sanitize data from Spreadsheet completely from any HTML tags, maybe here. Replace old tags by new Markup Syntax
+    // TODO: sanitize data from Spreadsheet completely from any HTML tags, maybe here. (maybe also replace old tags by new Markup Syntax)
 
     var curItem = "";
     var curType = "";
@@ -912,14 +912,41 @@ function getCMContent(item, itemType, mnemType)
     if (CMData[itemType][item][mnemType].t[0].length > 0 && CMData[itemType][item][mnemType].t[0] !== "!")
     {
         CMItem = CMData[itemType][item][mnemType];
+
+        // p tag with actual Mnemonic text
+        let CMUserContent =
+            '<p class="cm-mnem-text">' + CMItem.t[CMSortMap[mnemType][CMPage]] +
+            // Link to user
+            '<br />by <a href="https://www.wanikani.com/community/people/' + CMItem.u[CMSortMap[mnemType][CMPage]] + '" target="_blank" >' +
+            CMItem.u[CMSortMap[mnemType][CMPage]] + '</a></p>';
+
+        // The CM use "inverted" classes, that get converted later.
+        // (idk how) But probably through javascript, because inside the iframe, they won't get converted,
+        // causing css highlighting to not work any more. So I replace them here.
+        // TODO: find out where the classes get converted and fix it there, if possible
+        // NOTE: this will be obsolete anyway, once the move to Custom Markup Syntax is complete.
+        CMUserContent = CMUserContent.replace('class="highlight-reading">', 'class="reading-highlight">');
+        CMUserContent = CMUserContent.replace('class="highlight-kanji">', 'class="kanji-highlight">');
+        CMUserContent = CMUserContent.replace('class="highlight-vocabulary">', 'class="vocabulary-highlight">');
+        CMUserContent = CMUserContent.replace('class="highlight-radical">', 'class="radical-highlight">');
+
+        // add WaniKani CSS to inside of the iframe
+        CMUserContent =
+             '<link rel="stylesheet" media="screen" href="https://cdn.wanikani.com/assets/default-v2/application-086bda264ab19d313cbe4f5ff1600e320702bc4ec71f5f4532c08cb4b2861a7b.css" />\n' +
+            '<link rel="stylesheet" media="screen" href="https://cdn.wanikani.com/assets/application-be8fec0c87a2d6cf9afb39f298ad7f72f89c7f1d741153bdef831ee17b041bc2.css" />\n' +
+            '<link rel="stylesheet" media="screen" href="https://cdn.wanikani.com/packs/css/application-eabdf52f.css" />   ' +
+            CMUserContent;
+
+        // TODO: fix dynamic resizing of iframe
+        let CMUserContentIframe = "<iframe class='cm-mnem-text' id='cm-iframe' srcdoc='" + CMUserContent + "' width='700' height='150' sandbox scrolling='no' frameBorder='0' >\n" +
+            "There was a problem with displaying the WaniKani Community Mnemonic iframe\n" +
+            "</iframe>";
+
         CMContent =
             // left arrow
             '<div id="cm-' + CMMnemType + '-prev" class="cm-prev' + ((CMLen > 1 && CMPage > 0) ? "" : " disabled") + '"><span>◄</span></div>' +
-            // p tag with actual Mnemonic text
-            CMContent + ' class="cm-mnem-text">' + CMItem.t[CMSortMap[mnemType][CMPage]] +
-            // Link to user
-            '<br />by <a href="https://www.wanikani.com/community/people/' + CMItem.u[CMSortMap[mnemType][CMPage]] + '" target="_blank" >' +
-            CMItem.u[CMSortMap[mnemType][CMPage]] + '</a></p>' +
+            // sandboxed iframe with user Mnemonic
+            CMUserContentIframe +
             // right arrow
             '<div id="cm-' + CMMnemType + '-next" class="cm-next' + ((CMLen > 1 && CMPage < CMLen - 1) ? "" : " disabled") + '"><span>►</span></div>' +
             // Voting and submit buttons
@@ -928,9 +955,11 @@ function getCMContent(item, itemType, mnemType)
             CMItem.s[CMSortMap[mnemType][CMPage]] + '</span></div><div class="cm-upvote-highlight">Upvote</div><div class="cm-downvote-highlight">Downvote</div>' +
             '<div id="cm-' + CMMnemType + '-user-buttons" class="cm-user-buttons"><div class="cm-edit-highlight' + ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Edit</div><div class="cm-delete-highlight' +
             ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Delete</div></div><br /><div id="cm-' + CMMnemType + '-submit" class="cm-submit-highlight">Submit Yours</div></div>';
+
+
     } else
     {
-        CMContent += '>Nobody has posted a mnemonic for this item\'s ' + CMMnemType + ' yet. If you like, you can be the first to submit one!</p><div id="cm-' + CMMnemType + '-info" class="cm-info cm-nomnem">' +
+        CMContent = '<p>Nobody has posted a mnemonic for this item\'s ' + CMMnemType + ' yet. If you like, you can be the first to submit one!</p><div id="cm-' + CMMnemType + '-info" class="cm-info cm-nomnem">' +
             '<div id="cm-' + CMMnemType + '-submit" class="cm-submit-highlight nomnem">Submit Yours</div><div id="cm-' + CMMnemType + '-req" class="cm-req-highlight">' +
             (($.inArray(CMUser, CMData[itemType][item][mnemType].u) < 0) ? "Make Request" : "Delete Request") + '</div>';
         if (CMData[itemType][item][mnemType].t[0].length > 0 && CMData[itemType][item][mnemType].u[0].length > 0)
@@ -1596,7 +1625,7 @@ function postCM(postType) {
 
         // saves changes to Database
         $.ajax({
-            // wth is this?
+            // Macro script of Spreadsheet to handle insert of data
             url: "https://script.google.com/macros/s/AKfycbznhpL43Ix-qqO3sNcJmQeQk5dsdW6u0uaZ9to4_8TQho0qcm0/exec",
             type: "POST",
             data: serializedData,
