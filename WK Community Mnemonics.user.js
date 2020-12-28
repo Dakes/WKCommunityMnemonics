@@ -914,7 +914,7 @@ function getCMContent(item, itemType, mnemType)
         CMItem = CMData[itemType][item][mnemType];
 
         // p tag with actual Mnemonic text
-        let CMUserContent = CMItem.t[CMSortMap[mnemType][CMPage]].replace("'", "&#39;").replace("\"", "&#34;").replace("\&", "&amp;");
+        let CMUserContent = CMItem.t[CMSortMap[mnemType][CMPage]].replaceAll("'", "&apos;");
         CMUserContent =
             '<p class="cm-mnem-text">' + CMUserContent +
             // Link to user

@@ -34,3 +34,4 @@ so that people would be motivated to contribute and so that we can thank them fo
 
 ## Buglist
 - Left and right button overlap in lesson CRM
+- Sometimes wrong Mnemonic is displayed
