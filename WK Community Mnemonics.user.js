@@ -939,8 +939,14 @@ function getCMContent(item, itemType, mnemType)
             CMUserContent;
 
         // TODO: fix dynamic resizing of iframe
-        let CMUserContentIframe = "<iframe class='cm-mnem-text' id='cm-iframe' srcdoc='" + CMUserContent + "' width='700' height='150' sandbox scrolling='no' frameBorder='0' >\n" +
-            "There was a problem with displaying the WaniKani Community Mnemonic iframe\n" +
+        // create iframe
+        let CMIframeClass = "cm-mnem-text";
+        // CMIframeClass += " cm-mnem-text-" + CMMnemType;
+        let CMIframeId = "cm-iframe-" + CMMnemType;
+
+        let CMUserContentIframe = "<iframe class='" + CMIframeClass + "' id='" + CMIframeId + "' srcdoc='' width='700' height='150' " +
+            "sandbox scrolling='no' frameBorder='0' >" +
+            "There was a problem with displaying the WaniKani Community Mnemonic iframe" +
             "</iframe>";
 
         CMContent =
@@ -957,6 +963,24 @@ function getCMContent(item, itemType, mnemType)
             '<div id="cm-' + CMMnemType + '-user-buttons" class="cm-user-buttons"><div class="cm-edit-highlight' + ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Edit</div><div class="cm-delete-highlight' +
             ((CMItem.u[CMSortMap[mnemType][CMPage]] !== CMUser) ? " disabled" : "") + '">Delete</div></div><br /><div id="cm-' + CMMnemType + '-submit" class="cm-submit-highlight">Submit Yours</div></div>';
 
+
+        // Set srcdoc later, as soon as iframe is available
+        // This probably isn't any safer, but hey
+        let waitForEl = function (selector, callback)
+        {
+            if ($(selector).length)
+                callback();
+            else
+                setTimeout(function ()
+                {
+                    waitForEl(selector, callback);
+                }, 100);
+        };
+
+        waitForEl("#"+CMIframeId, function ()
+        {
+            $("#"+CMIframeId).attr("srcdoc", CMUserContent);
+        });
 
     } else
     {
