@@ -19,7 +19,7 @@
 /* This script is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license
 *  Details: http://creativecommons.org/licenses/by-nc/4.0/ */
 
-let CMVersion = "0.9.8";
+let CMVersion = "0.9.8.1";
 
 // if current page is Review page
 let CMIsReview = (window.location.pathname.indexOf("/review/") > -1);
