@@ -9,6 +9,13 @@ And here the original on GreasyFork: https://greasyfork.org/en/scripts/7954-wk-c
 Original Community Post: https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367
 
 ## Latest Changelog
+### 0.9.8.1:
+- User mnemonics are displayed in sandboxed iframes
+- moved to separate copy of spreadsheet, to prevent mixing of Mnemonics with users from older, insecure versions. 
+  (https://docs.google.com/spreadsheets/d/1GR1D7irVwBMnjJeMK1GwZ5K4hqXz0i5SpQaWmS3EphM)
+- Changed Google App Script for insert into Spreadsheet: Added regex to replace all HTML tags except the ones, used for highlighting. Also added it to GitHub. 
+- The Spreadsheet is also read only, making the insert script the only way for data to enter the Spreadsheet. 
+
 ### 0.9.8:
 - Now works on every site, it was originally meant to work on: + the item site outside the review. 
 
@@ -20,16 +27,17 @@ Original Community Post: https://community.wanikani.com/t/userscript-community-m
 ## TODO
 First 4 points shamelessly copied of irrelephant from the WaniKani Community:  https://community.wanikani.com/t/userscript-community-mnemonics-v0978/7367/128  
 
-- Sanitize data to avoid XSS attacks as mentioned by above. There is already some of that logic in place to do this, 
-I would probably just do that again before showing the data (in case someone had modified it directly in the Google doc)  
-- Fix script so that it runs on all types of pages (at least lessons and kanji currently don’t seem to be working)  
+- Replace html tags for highlighting with custom Markdown similar markup Syntax. 
+- Add proper sanitization directly after user entered a new Mnemonic. 
 - Optional, later: build a small tool that lets people bulk export their notes so that I can import them to the existing data set.  
 - Also optional: have a small statistic somewhere that lists users and the votes that they received on their mnemonics, 
 so that people would be motivated to contribute and so that we can thank them for putting in the effort.
 - Look for "Database" alternative for Google spreadsheets.   
 - Let people claim ownership of Mnemonics by user "c" (caused by bug) (Hopefully there is no one actually called c, lol)
 - Split everything into multiple easier understandable smaller files. 
+- fix update message (Or remove update Dialog completely)
 - Replace Tabletop by something a little less deprecated
 
 ## Buglist
 - Left and right button overlap in lesson CRM
+- Sometimes wrong Mnemonic is displayed
