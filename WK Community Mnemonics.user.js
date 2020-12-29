@@ -62,7 +62,8 @@ else
 let CM_public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1GR1D7irVwBMnjJeMK1GwZ5K4hqXz0i5SpQaWmS3EphM/pub?hl=en_US&hl=en_US&hl=en_US&output=html';
 
 // old one: "https://script.google.com/macros/s/AKfycbznhpL43Ix-qqO3sNcJmQeQk5dsdW6u0uaZ9to4_8TQho0qcm0/exec"
-let CM_public_insert_script = 'https://script.google.com/macros/s/AKfycby8yT5wDxHC7wy66iIsZDmip9dAhqevtra0SeXt/exec';
+// WKCMDB_Handler.gs
+let CM_public_insert_script = 'https://script.google.com/macros/s/AKfycbzEXpE1ipIJXw6803huoii5fB1HnWDBy38boYEmn5dqVqD22NDvg5X4/exec';
 
 // Greasy Fork version kept for compatibility. TODO: maybe move purely to GitHub
 let greasyfork_url = "https://greasyfork.org/en/scripts/416545-wk-community-mnemonics/versions.html";
@@ -918,7 +919,7 @@ function getCMContent(item, itemType, mnemType)
         CMItem = CMData[itemType][item][mnemType];
 
         // p tag with actual Mnemonic text
-        let CMUserContent = CMItem.t[CMSortMap[mnemType][CMPage]].replaceAll("'", "&apos;");
+        let CMUserContent = CMItem.t[CMSortMap[mnemType][CMPage]].replaceAll("'", "&#039;");
         CMUserContent =
             '<p class="cm-mnem-text">' + CMUserContent +
             // Link to user

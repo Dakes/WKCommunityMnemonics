@@ -11,6 +11,10 @@ var SHEET_NAME = "wkcmdb_1";
 //
 //  5. Insert column names on your destination sheet matching the parameter names of the data you are passing in (exactly matching case)
 
+// Regex matching every html tag, except the ones for highlighting
+var regex = new RegExp(/(<(?!(?:\/?(span|b|i|u|s))\b)[^>]+>)/gmi);
+
+
 var SCRIPT_PROP = PropertiesService.getScriptProperties(); // new property service
 
 // If you don't want to expose either GET or POST methods you can comment out the appropriate function
@@ -74,9 +78,17 @@ function handleResponse(e)
         // loop through the header columns
         for (i in headers)
         {
-            if (headers[i] !== "Index" && headers[i] !== "Info" && headers[i] !== "Last_Updated") row.push(e.parameter[headers[i]]);
-            else if (headers[i] == "Info") row.push(rowInfo);
-            else if (headers[i] == "Last_Updated") row.push(d.toString());
+            if (headers[i] !== "Index" && headers[i] !== "Info" && headers[i] !== "Last_Updated")
+            {
+                var user_content = e.parameter[headers[i]];
+                // Clean from all non whitelisted HTML
+                user_content = user_content.replace(regex, '');
+                row.push(user_content);
+            }
+            else if (headers[i] == "Info")
+                row.push(rowInfo);
+            else if (headers[i] == "Last_Updated")
+                row.push(d.toString());
         }
 
         // more efficient to set values as [][] array than individually
